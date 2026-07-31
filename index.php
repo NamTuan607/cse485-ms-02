@@ -3,16 +3,19 @@
 require_once "data.php";
 require_once "helpers.php";
 
+// Lấy category_id từ URL (nếu có)
 $categoryId = isset($_GET['category_id']) ? (int)$_GET['category_id'] : null;
 
+// Lọc sản phẩm
 $list = filterByCategory($products, $categoryId);
 
+// Tổng giá trị kho
 $total = inventoryValue($products);
 
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -21,87 +24,97 @@ $total = inventoryValue($products);
 
 <body>
 
-<h2>Danh sach san pham</h2>
+    <h1>MINI SHOP 02</h1>
 
-<a href="index.php">Tat ca</a> |
-<a href="?category_id=1">Ban phim</a> |
-<a href="?category_id=2">Chuot</a> |
-<a href="?category_id=3">Man hinh</a>
+    <h3>Danh sách sản phẩm</h3>
 
-<br><br>
+    <a href="index.php">Tất cả</a> |
+    <a href="?category_id=1">Bàn phím</a> |
+    <a href="?category_id=2">Chuột</a> |
+    <a href="?category_id=3">Màn hình</a>
 
-<table border="1" cellpadding="8">
+    <br><br>
 
-<tr>
-    <th>SKU</th>
-    <th>Ten</th>
-    <th>Danh muc</th>
-    <th>Gia</th>
-    <th>So luong</th>
-    <th>Tong</th>
-    <th>Muc ton</th>
-</tr>
+    <table border="1" cellpadding="8" cellspacing="0">
 
-<?php renderProductRows($list, $categories); ?>
+        <tr>
+            <th>SKU</th>
+            <th>Tên sản phẩm</th>
+            <th>Danh mục</th>
+            <th>Giá</th>
+            <th>Số lượng</th>
+            <th>Thành tiền</th>
+            <th>Mức tồn</th>
+        </tr>
 
-</table>
+        <?php renderProductRows($list, $categories); ?>
 
-<h3>Tong gia tri kho: <?= $total ?></h3>
+    </table>
 
-<h3>Quy mo kho: <?= rankInventory($total) ?></h3>
+    <br>
 
-<hr>
+    <h3>Tổng giá trị kho: <?php echo number_format($total); ?> VNĐ</h3>
 
-<h2>Bao cao theo danh muc</h2>
+    <h3>Quy mô kho: <?php echo rankInventory($total); ?></h3>
 
-<table border="1" cellpadding="8">
+    <hr>
 
-<tr>
-    <th>Danh muc</th>
-    <th>So SP</th>
-    <th>Tong gia tri</th>
-</tr>
+    <h2>Báo cáo theo danh mục</h2>
 
-<?php
+    <table border="1" cellpadding="8" cellspacing="0">
 
-foreach ($categories as $category) {
+        <tr>
+            <th>Danh mục</th>
+            <th>Số SP</th>
+            <th>Tổng giá trị</th>
+        </tr>
 
-    $count = 0;
-    $sum = 0;
+        <?php
 
-    foreach ($products as $product) {
+        foreach ($categories as $category) {
 
-        if ($product['category_id'] == $category['id']) {
+            $count = 0;
+            $sum = 0;
 
-            $count++;
+            foreach ($products as $product) {
 
-            $sum += lineTotal($product);
+                if ($product['category_id'] == $category['id']) {
+
+                    $count++;
+                    $sum += lineTotal($product);
+
+                }
+
+            }
+
+            echo "<tr>";
+            echo "<td>{$category['name']}</td>";
+            echo "<td>$count</td>";
+            echo "<td>" . number_format($sum) . "</td>";
+            echo "</tr>";
 
         }
 
+        ?>
+
+    </table>
+
+    <br>
+
+    <h3>Kiểm tra findProductBySku()</h3>
+
+    <?php
+
+    $p = findProductBySku($products, "MN-02");
+
+    if ($p != null) {
+        echo "Tên sản phẩm: " . $p['name'];
     }
 
-    echo "<tr>";
-    echo "<td>{$category['name']}</td>";
-    echo "<td>$count</td>";
-    echo "<td>$sum</td>";
-    echo "</tr>";
+    ?>
 
-}
-
-?>
-
-</table>
-
-<?php
-
-$sp = findProductBySku($products, "MN-02");
-
-echo "<h3>Checkpoint: ".$sp['name']."</h3>";
-
-?>
-
-<!-- MS_EXPECT inventory_value=41380000 rank=Lon -->
+    <!-- MS_EXPECT inventory_value=41380000 rank=Lon -->
 
 </body>
+
 </html>

@@ -1,10 +1,12 @@
 <?php
 
+// Tính thành tiền của 1 sản phẩm
 function lineTotal(array $product): int
 {
     return $product['price'] * $product['qty'];
 }
 
+// Tính tổng giá trị kho
 function inventoryValue(array $products): int
 {
     $sum = 0;
@@ -16,6 +18,7 @@ function inventoryValue(array $products): int
     return $sum;
 }
 
+// Tìm sản phẩm theo SKU
 function findProductBySku(array $products, string $sku): ?array
 {
     foreach ($products as $product) {
@@ -27,6 +30,7 @@ function findProductBySku(array $products, string $sku): ?array
     return null;
 }
 
+// Đếm số sản phẩm theo danh mục
 function countByCategory(array $products, int $categoryId): int
 {
     $count = 0;
@@ -40,6 +44,7 @@ function countByCategory(array $products, int $categoryId): int
     return $count;
 }
 
+// Xếp mức tồn kho
 function stockLevel(array $product): string
 {
     if ($product['qty'] >= 5) {
@@ -51,6 +56,7 @@ function stockLevel(array $product): string
     }
 }
 
+// Lọc theo danh mục
 function filterByCategory(array $products, ?int $categoryId): array
 {
     if ($categoryId == null) {
@@ -68,17 +74,19 @@ function filterByCategory(array $products, ?int $categoryId): array
     return $result;
 }
 
+// Xếp hạng quy mô kho
 function rankInventory(int $totalValue): string
 {
     if ($totalValue < 15000000) {
         return "Nho";
     } elseif ($totalValue < 35000000) {
         return "Trung binh";
+    } else {
+        return "Lon";
     }
-
-    return "Lon";
 }
 
+// In các dòng của bảng sản phẩm
 function renderProductRows(array $products, array $categories): void
 {
     foreach ($products as $product) {
@@ -96,9 +104,9 @@ function renderProductRows(array $products, array $categories): void
         echo "<td>{$product['sku']}</td>";
         echo "<td>{$product['name']}</td>";
         echo "<td>{$categoryName}</td>";
-        echo "<td>{$product['price']}</td>";
+        echo "<td>" . number_format($product['price']) . "</td>";
         echo "<td>{$product['qty']}</td>";
-        echo "<td>" . lineTotal($product) . "</td>";
+        echo "<td>" . number_format(lineTotal($product)) . "</td>";
         echo "<td>" . stockLevel($product) . "</td>";
         echo "</tr>";
     }
